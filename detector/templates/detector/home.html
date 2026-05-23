@@ -1,0 +1,323 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Plant AI – AI Powered Disease Detection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green-dark: #1a3a1a;
+      --green-mid:  #2d6a2d;
+      --green-bg:   #1e4d1e;
+      --green-light:#4caf50;
+      --gold:       #f5c842;
+      --gold-hover: #e0b030;
+      --white:      #ffffff;
+      --text-muted: #c8dfc8;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--green-bg);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center;
+      padding: 0 2rem;
+      height: 64px;
+      background: rgba(20, 50, 20, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--green-light);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .nav-links { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
+
+    .nav-about {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem; font-weight: 600;
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      padding: 7px 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .nav-about:hover {
+      color: var(--white);
+      border-color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(10,30,10,0.55) 0%, rgba(10,30,10,0.3) 50%, rgba(20,60,20,0.85) 100%),
+        url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=1600&q=80') center/cover no-repeat;
+      animation: slowZoom 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes slowZoom {
+      from { transform: scale(1); }
+      to   { transform: scale(1.06); }
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 780px; padding: 0 1.5rem;
+      animation: fadeUp 1s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(76,175,80,0.2);
+      border: 1px solid rgba(76,175,80,0.5);
+      color: #90ee90;
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 6px 18px; border-radius: 20px;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 1s 0.1s ease both;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 1.4rem;
+      animation: fadeUp 1s 0.2s ease both;
+    }
+
+    .hero h1 span { color: var(--gold); }
+
+    .hero p {
+      font-size: 1.1rem; color: var(--text-muted);
+      max-width: 520px; margin: 0 auto 2.2rem;
+      line-height: 1.7;
+      animation: fadeUp 1s 0.3s ease both;
+    }
+
+    .btn-try {
+      display: inline-block;
+      background: var(--gold);
+      color: #1a1a00;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700; font-size: 1rem;
+      padding: 15px 42px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: background 0.25s, transform 0.2s, box-shadow 0.25s;
+      box-shadow: 0 4px 24px rgba(245,200,66,0.35);
+      animation: fadeUp 1s 0.4s ease both;
+    }
+
+    .btn-chat {
+      display: inline-block;
+      background: transparent;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700; font-size: 1rem;
+      padding: 15px 42px;
+      border-radius: 50px;
+      text-decoration: none;
+      border: 2px solid rgba(255,255,255,0.5);
+      margin-left: 1rem;
+      transition: all 0.25s;
+      animation: fadeUp 1s 0.5s ease both;
+    }
+    .btn-chat:hover { background: rgba(255,255,255,0.15); border-color: white; }
+    .btn-try:hover {
+      background: var(--gold-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(245,200,66,0.45);
+    }
+
+    .scroll-hint {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      color: rgba(255,255,255,0.4); font-size: 0.75rem;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%,100% { transform: translateX(-50%) translateY(0); }
+      50%      { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ── How It Works ── */
+    .how {
+      background: var(--green-mid);
+      padding: 90px 2rem;
+      text-align: center;
+    }
+
+    .how h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem; font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    .how-sub {
+      color: var(--text-muted); font-size: 1rem; margin-bottom: 3.5rem;
+    }
+
+    .steps {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;
+      max-width: 900px; margin: 0 auto;
+    }
+
+    .step {
+      flex: 1 1 180px; max-width: 200px;
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.5s, transform 0.5s;
+    }
+
+    .step.visible { opacity: 1; transform: translateY(0); }
+
+    .step-icon {
+      width: 70px; height: 70px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.7rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: background 0.25s, transform 0.25s;
+    }
+
+    .step:hover .step-icon {
+      background: rgba(76,175,80,0.3);
+      transform: scale(1.08);
+    }
+
+    .step h3 { font-size: 1rem; font-weight: 600; }
+    .step p  { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--green-dark);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <a class="nav-logo" href="/">
+      <div class="logo-icon">🌿</div>
+      Plant AI
+    </a>
+    <div class="nav-links">
+      <a class="nav-about" href="{% url 'about' %}">About</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">🤖 AI Powered Analysis</div>
+      <h1>Try our <span>AI Powered</span><br>Disease Detection</h1>
+      <p>Instantly detect plant diseases from a single leaf photo. Get accurate results powered by machine learning in seconds.</p>
+      <a href="{% url 'upload' %}" class="btn-try">Try Now →</a>
+      <a href="{% url 'chat' %}" class="btn-chat">💬 Chat with AI</a>
+    </div>
+    <div class="scroll-hint">
+      <span>scroll</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how">
+    <h2>How it works?</h2>
+    <p class="how-sub">Four simple steps to detect plant disease</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-icon">📷</div>
+        <h3>Click a Pic</h3>
+        <p>Take a picture of your plant leaf</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">⬆️</div>
+        <h3>Upload on Plant AI</h3>
+        <p>Visit Plant AI on your device and click Try Now to upload your picture</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">📄</div>
+        <h3>Get final Report</h3>
+        <p>Plant AI will analyze your plant and display a detailed report for you</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">🤖</div>
+        <h3>Chat with AI</h3>
+        <p>Ask Plant AI questions about care, diseases, and treatments for your plant</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2026 Plant AI — Powered by MobileNet V2 &amp; Django
+  </footer>
+
+  <script>
+    // Intersection Observer for step cards
+    const steps = document.querySelectorAll('.step');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 120);
+        }
+      });
+    }, { threshold: 0.2 });
+    steps.forEach(s => observer.observe(s));
+  </script>
+</body>
+</html>
