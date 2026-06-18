@@ -1,0 +1,37 @@
+{
+  "model": "ozair23/mobilenet_v2_1.0_224-finetuned-plantdisease",
+  "images_tested": 30,
+  "classes_tested": 3,
+  "overall": {
+    "accuracy": 93.33,
+    "precision": 100.0,
+    "recall": 93.33,
+    "f1_score": 96.49
+  },
+  "per_class": {
+    "Pepper___Bell_healthy": {
+      "precision": 100.0,
+      "recall": 90.0,
+      "f1": 94.7,
+      "support": 10
+    },
+    "Potato___Early_blight": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1": 100.0,
+      "support": 10
+    },
+    "Tomato___Healthy": {
+      "precision": 100.0,
+      "recall": 90.0,
+      "f1": 94.7,
+      "support": 10
+    },
+    "micro avg": {
+      "precision": 100.0,
+      "recall": 93.3,
+      "f1": 96.6,
+      "support": 30
+    }
+  }
+}

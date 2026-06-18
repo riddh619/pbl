@@ -1,0 +1,1248 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Plant AI – Upload Leaf</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --green-dark:  #1a3a1a;
+      --green-mid:   #2d6a2d;
+      --green-light: #4caf50;
+      --white:       #ffffff;
+      --text-muted:  #6b8f6b;
+      --border:      #4caf50;
+      --bg-chat:     #f4f9f4;
+      --orange:      #e65100;
+      --orange-light:#fff3e0;
+      --red:         #c62828;
+      --red-light:   #ffebee;
+      --blue:        #1565c0;
+      --blue-light:  #e3f2fd;
+    }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(10,30,10,0.52), rgba(10,30,10,0.52)),
+        url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=1600&q=80') center/cover no-repeat fixed;
+      display: flex; flex-direction: column;
+    }
+    nav {
+      height: 60px; background: var(--green-dark);
+      display: flex; align-items: center;
+      padding: 0 1.5rem; gap: 1rem; flex-shrink: 0;
+    }
+    .nav-back { color: var(--white); text-decoration: none; font-size: 1.3rem; transition: transform 0.2s; }
+    .nav-back:hover { transform: translateX(-3px); }
+    .nav-academy {
+      margin-left: auto;
+      font-size: 0.85rem; font-weight: 600;
+      color: rgba(255,255,255,0.75); text-decoration: none;
+      padding: 6px 14px; border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.2s;
+    }
+    .nav-academy:hover {
+      color: var(--white); border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.08);
+    }
+    nav span { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--white); font-weight: 700; }
+    main {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 2rem;
+    }
+    .split {
+      display: flex; gap: 1.5rem;
+      width: 100%; max-width: 1100px; align-items: flex-start;
+    }
+    .card-left {
+      background: rgba(255,255,255,0.93);
+      backdrop-filter: blur(16px);
+      border-radius: 20px; padding: 2rem; flex: 0 0 360px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      animation: slideIn 0.5s ease both;
+    }
+    .card-right {
+      background: rgba(255,255,255,0.93);
+      backdrop-filter: blur(16px);
+      border-radius: 20px; padding: 2rem; flex: 1; min-width: 0;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      animation: slideIn 0.5s 0.1s ease both;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 480px;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card-left h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem; font-weight: 900;
+      color: var(--green-mid); margin-bottom: 0.3rem; text-align: center;
+    }
+    .card-sub { text-align: center; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem; }
+    .dropzone {
+      border: 2.5px dashed var(--border); border-radius: 12px;
+      background: rgba(76,175,80,0.05); min-height: 200px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 10px;
+      cursor: pointer; position: relative;
+      transition: background 0.2s, border-color 0.2s; overflow: hidden;
+    }
+    .dropzone:hover, .dropzone.drag-over { background: rgba(76,175,80,0.12); border-color: var(--green-mid); }
+    .dropzone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .upload-icon {
+      width: 52px; height: 52px; background: rgba(76,175,80,0.15);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+    }
+    .dropzone-text { text-align: center; color: var(--text-muted); }
+    .dropzone-text strong { display: block; color: #333; font-size: 0.9rem; }
+    .dropzone-text small  { font-size: 0.75rem; }
+    #preview { display: none; width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
+    .btn-detect {
+      margin-top: 1.2rem; width: 100%; padding: 14px;
+      background: var(--green-mid); color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 1rem;
+      border: none; border-radius: 10px; cursor: pointer;
+      transition: background 0.25s, transform 0.2s;
+    }
+    .btn-detect:hover:not(:disabled) { background: var(--green-dark); transform: translateY(-1px); }
+    .btn-detect:disabled { background: #aaa; cursor: not-allowed; }
+    .btn-inner { display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .spinner {
+      display: none; width: 20px; height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: white; border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Right panel states */
+    .placeholder { text-align: center; color: #bbb; }
+    .placeholder-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .placeholder p { font-size: 0.9rem; line-height: 1.6; }
+    .analyzing { display: none; flex-direction: column; align-items: center; gap: 1rem; text-align: center; }
+    .analyzing-spinner {
+      width: 50px; height: 50px;
+      border: 4px solid rgba(76,175,80,0.2);
+      border-top-color: var(--green-light);
+      border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    .analyzing p { color: var(--text-muted); font-size: 0.9rem; }
+    .result-panel { display: none; width: 100%; animation: fadeUp 0.4s ease both; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Result header */
+    .result-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 1rem; padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+    .result-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; flex-shrink: 0;
+    }
+    .result-icon.healthy  { background: #e8f5e9; }
+    .result-icon.diseased { background: #fff3e0; }
+    .result-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #999; }
+    .result-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; font-weight: 700; color: var(--green-dark);
+      line-height: 1.2; margin-top: 2px;
+    }
+    .status-badge {
+      display: inline-block; padding: 4px 14px; border-radius: 20px;
+      font-size: 0.78rem; font-weight: 700; margin-bottom: 1rem;
+    }
+    .status-badge.healthy  { background: #c8e6c9; color: #1b5e20; }
+    .status-badge.diseased { background: #ffe0b2; color: #e65100; }
+
+    /* Confidence */
+    .conf-section { margin-bottom: 1rem; }
+    .conf-label { display: flex; justify-content: space-between; font-size: 0.82rem; color: #555; margin-bottom: 6px; }
+    .conf-label span:last-child { font-weight: 700; color: var(--green-mid); }
+    .conf-bar { height: 8px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+    .conf-fill {
+      height: 100%; border-radius: 10px;
+      background: linear-gradient(90deg, var(--green-light), var(--green-mid));
+      transition: width 0.8s ease;
+    }
+
+    /* Other possibilities */
+    .top3-section { margin-bottom: 1rem; }
+    .top3-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #aaa; margin-bottom: 8px; }
+    .top3-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 7px 12px; border-radius: 8px;
+      background: #f9f9f9; margin-bottom: 5px;
+      font-size: 0.83rem; color: #444;
+    }
+    .top3-conf { font-weight: 700; color: var(--green-mid); }
+
+    /* ── Disease Info Cards ── */
+    .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .info-card {
+      border-radius: 12px; padding: 12px 14px;
+      animation: fadeUp 0.4s ease both;
+    }
+    .info-card.symptoms  { background: var(--red-light);    animation-delay: 0.1s; }
+    .info-card.cause     { background: var(--orange-light); animation-delay: 0.15s; }
+    .info-card.severity  { background: #f3e5f5;             animation-delay: 0.2s; }
+    .info-card.spread    { background: var(--blue-light);   animation-delay: 0.25s; }
+    .info-card-title {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .info-card.symptoms  .info-card-title { color: var(--red); }
+    .info-card.cause     .info-card-title { color: var(--orange); }
+    .info-card.severity  .info-card-title { color: #6a1b9a; }
+    .info-card.spread    .info-card-title { color: var(--blue); }
+    .info-card-body { font-size: 0.8rem; color: #444; line-height: 1.5; }
+
+    /* Treatment & Prevention */
+    .tips-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .tips-box {
+      border-radius: 12px; padding: 12px 14px;
+      animation: fadeUp 0.4s ease both;
+    }
+    .tips-box.treatment  { background: #e8f5e9; animation-delay: 0.3s; }
+    .tips-box.prevention { background: #e3f2fd; animation-delay: 0.35s; }
+    .tips-box-title {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .tips-box.treatment  .tips-box-title { color: #1b5e20; }
+    .tips-box.prevention .tips-box-title { color: var(--blue); }
+    .tips-list { list-style: none; padding: 0; }
+    .tips-list li {
+      font-size: 0.79rem; color: #444; line-height: 1.5;
+      padding: 3px 0; display: flex; gap: 6px;
+    }
+    .tips-list li::before { content: '•'; flex-shrink: 0; font-weight: 700; color: inherit; }
+    .tips-box.treatment  .tips-list li::before { color: #2e7d32; }
+    .tips-box.prevention .tips-list li::before { color: var(--blue); }
+
+    /* Divider */
+    .section-divider {
+      border: none; border-top: 1px solid #eee;
+      margin: 0.8rem 0;
+    }
+
+    /* Buttons */
+    .try-again-btn {
+      margin-top: 0.8rem; width: 100%; padding: 10px;
+      background: transparent; border: 2px solid var(--green-mid);
+      color: var(--green-mid); font-family: 'DM Sans', sans-serif;
+      font-weight: 700; font-size: 0.9rem; border-radius: 10px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .try-again-btn:hover { background: var(--green-mid); color: white; }
+    .chat-result-btn {
+      margin-top: 0.5rem; width: 100%; padding: 12px;
+      background: linear-gradient(135deg, #1a3a1a, #2d6a2d);
+      border: none; color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700; font-size: 0.95rem; border-radius: 10px;
+      cursor: pointer; transition: all 0.2s;
+      display: none; align-items: center; justify-content: center; gap: 8px;
+      text-decoration: none;
+      animation: fadeUp 0.4s 0.2s ease both;
+    }
+    .chat-result-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* No-info fallback */
+    .no-info-note {
+      font-size: 0.78rem; color: #aaa; text-align: center;
+      padding: 8px 0; display: none;
+    }
+
+    @media (max-width: 800px) {
+      .split { flex-direction: column; }
+      .card-left { flex: unset; }
+      .card-right { min-height: auto; }
+      .info-grid, .tips-row { grid-template-columns: 1fr; }
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────── */
+    /* MODEL CARDS - NEW STYLES FOR TRIPLE MODEL DISPLAY */
+    /* ─────────────────────────────────────────────────────────────────────── */
+    
+    .model-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
+      border: 1.5px solid;
+      border-radius: 14px; padding: 14px 16px;
+      margin-bottom: 12px;
+      animation: slideInModel 0.4s ease both;
+      backdrop-filter: blur(10px);
+    }
+
+    @keyframes slideInModel {
+      from { opacity: 0; transform: translateX(-10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .model-1 { border-color: #4caf50; background: linear-gradient(135deg, rgba(76,175,80,0.08), rgba(76,175,80,0.02)); }
+    .model-1:hover { background: linear-gradient(135deg, rgba(76,175,80,0.15), rgba(76,175,80,0.05)); }
+
+    .model-2 { border-color: #2196F3; background: linear-gradient(135deg, rgba(33,150,243,0.08), rgba(33,150,243,0.02)); }
+    .model-2:hover { background: linear-gradient(135deg, rgba(33,150,243,0.15), rgba(33,150,243,0.05)); }
+
+    .model-3 { border-color: #FF9800; background: linear-gradient(135deg, rgba(255,152,0,0.08), rgba(255,152,0,0.02)); }
+    .model-3:hover { background: linear-gradient(135deg, rgba(255,152,0,0.15), rgba(255,152,0,0.05)); }
+
+    .model-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .model-badge {
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 4px 10px;
+      border-radius: 20px; display: inline-block;
+    }
+
+    .model-1-badge { background: rgba(76,175,80,0.2); color: #2e7d32; }
+    .model-2-badge { background: rgba(33,150,243,0.2); color: #0d47a1; }
+    .model-3-badge { background: rgba(255,152,0,0.2); color: #e65100; }
+
+    .model-tag {
+      font-size: 0.68rem; color: #999; font-weight: 600;
+    }
+
+    .model-content {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+
+    .model-prediction {
+      font-size: 1rem; font-weight: 700; color: var(--green-dark);
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* Binary breakdown for Model 2 */
+    .binary-breakdown {
+      display: flex; gap: 12px; font-size: 0.85rem;
+    }
+
+    .binary-item {
+      flex: 1; padding: 8px 12px; border-radius: 8px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-weight: 600;
+    }
+
+    .binary-item.healthy { background: #e8f5e9; color: #1b5e20; }
+    .binary-item.diseased { background: #fff3e0; color: #e65100; }
+
+    .binary-value { font-weight: 800; }
+
+    /* Consensus Display */
+    .consensus-display {
+      text-align: center;
+    }
+
+    .consensus-badge {
+      font-size: 1.1rem; font-weight: 800;
+      display: inline-block; padding: 8px 16px;
+      border-radius: 20px; margin-bottom: 8px;
+      font-family: 'Playfair Display', serif;
+      background: #fff3e0; color: #e65100;
+    }
+
+    .consensus-badge.agree {
+      background: #e8f5e9; color: #1b5e20;
+    }
+
+    .consensus-details {
+      font-size: 0.82rem; color: #666; line-height: 1.6;
+    }
+
+    .consensus-detail-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 4px 0;
+    }
+
+    .consensus-model-label { font-weight: 600; }
+    .consensus-model-value { font-weight: 700; }
+
+    /* ─────────────────────────────────────────────────────────────────────── */
+    /* METADATA & TECHNICAL INFORMATION STYLES */
+    /* ─────────────────────────────────────────────────────────────────────── */
+
+    .metadata-section {
+      margin-top: 10px; padding: 10px; border-radius: 8px;
+      background: rgba(0,0,0,0.02); font-size: 0.8rem;
+    }
+
+    .metadata-item {
+      display: flex; justify-content: space-between; gap: 10px;
+      padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .metadata-item:last-child { border-bottom: none; }
+
+    .metadata-label {
+      font-weight: 700; color: #555; min-width: 100px;
+    }
+
+    .metadata-value {
+      color: #333; text-align: right; flex: 1;
+    }
+
+    /* Performance Metrics Grid */
+    .performance-section {
+      margin-top: 10px; padding: 10px; border-radius: 8px;
+      background: rgba(76,175,80,0.05); font-size: 0.8rem;
+    }
+
+    .perf-title {
+      font-weight: 700; color: #2e7d32; margin-bottom: 8px; font-size: 0.75rem;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    .perf-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+
+    .perf-item {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 8px; background: white; border-radius: 6px;
+      border: 1px solid rgba(76,175,80,0.2);
+    }
+
+    .perf-label {
+      font-size: 0.7rem; color: #999; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 3px;
+    }
+
+    .perf-value {
+      font-size: 0.95rem; font-weight: 800; color: #2e7d32;
+    }
+
+    /* Technical Details */
+    .tech-info {
+      margin-top: 10px; padding: 10px; border-radius: 8px;
+      background: rgba(33,150,243,0.05); font-size: 0.8rem;
+    }
+
+    .tech-label {
+      font-weight: 700; color: #0d47a1; font-size: 0.75rem;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 5px;
+    }
+
+    .tech-detail {
+      font-family: 'Courier New', monospace; color: #333;
+      padding: 6px; background: white; border-radius: 4px;
+      border-left: 3px solid #2196F3; padding-left: 10px;
+      font-size: 0.75rem;
+    }
+
+    /* Comparison Table */
+    .comparison-section {
+      margin-top: 10px; padding: 10px; border-radius: 8px;
+      background: rgba(255,152,0,0.05); font-size: 0.8rem;
+    }
+
+    .comp-title {
+      font-weight: 700; color: #e65100; margin-bottom: 8px;
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    .comparison-table {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+
+    .comp-row {
+      display: grid; grid-template-columns: 1fr 0.8fr 0.8fr;
+      gap: 8px; padding: 6px; background: white;
+      border-radius: 4px; border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .comp-row.header { background: rgba(255,152,0,0.1); font-weight: 700; }
+
+    .comp-cell {
+      font-size: 0.75rem; padding: 4px; text-align: center;
+    }
+
+    .comp-cell.header {
+      font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+      color: #e65100;
+    }
+
+    /* Methodology Section */
+    .methodology-section {
+      margin-top: 10px; padding: 10px; border-radius: 8px;
+      background: rgba(255,152,0,0.05); font-size: 0.8rem;
+    }
+
+    .method-label {
+      font-weight: 700; color: #e65100; font-size: 0.75rem;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .method-text {
+      color: #555; line-height: 1.5; font-size: 0.8rem;
+    }
+
+    .consensus-interpretation {
+      font-size: 0.8rem; color: #666; margin-top: 8px;
+      padding: 8px; background: white; border-radius: 6px;
+      border-left: 3px solid #FF9800;
+      padding-left: 10px;
+      line-height: 1.5;
+    }
+
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="nav-back" href="{% url 'home' %}">&#8592;</a>
+    <span>Plant Disease Detection</span>
+    <a class="nav-academy" href="{% url 'notebooks' %}">Academy</a>
+  </nav>
+
+  <main>
+    <div class="split">
+      <!-- LEFT -->
+      <div class="card-left">
+        <h1>Upload Leaf Image</h1>
+        <p class="card-sub">Upload an image of your plant leaf for AI analysis</p>
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp"/>
+          <img id="preview" alt="Preview"/>
+          <div class="upload-icon" id="uploadIcon">
+            <svg width="24" height="24" fill="none" stroke="#4caf50" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+            </svg>
+          </div>
+          <div class="dropzone-text" id="dropText">
+            <strong>Click to upload or drag and drop</strong>
+            <small>JPG, PNG, WEBP (MAX. 5MB)</small>
+          </div>
+        </div>
+        <button class="btn-detect" id="detectBtn" disabled>
+          <div class="btn-inner">
+            <div class="spinner" id="spinner"></div>
+            <span id="btnText">Detect Disease</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="card-right" id="rightPanel">
+        <div class="placeholder" id="placeholder">
+          <div class="placeholder-icon">🌿</div>
+          <p>Upload a leaf image and click<br><strong>Detect Disease</strong><br>to see AI analysis here</p>
+        </div>
+        <div class="analyzing" id="analyzing">
+          <div class="analyzing-spinner"></div>
+          <p>Analyzing your leaf image...<br>This may take a moment</p>
+        </div>
+
+        <div class="result-panel" id="resultPanel">
+          <!-- Header -->
+          <div class="result-header">
+            <div class="result-icon" id="resultIcon">🌿</div>
+            <div>
+              <div class="result-title">Detected Disease</div>
+              <div class="result-name" id="resultName">—</div>
+            </div>
+          </div>
+          <span class="status-badge" id="statusBadge">—</span>
+
+          <!-- ─── MODEL 1: MOBILENETV2 ─── -->
+          <div class="model-card model-1" id="model1Card">
+            <div class="model-header">
+              <span class="model-badge model-1-badge">Model 1: MobileNetV2</span>
+              <span class="model-tag">🎯 Disease Classifier</span>
+            </div>
+            <div class="model-content">
+              <div class="model-prediction" id="model1Prediction">—</div>
+              <div class="conf-section">
+                <div class="conf-label">
+                  <span>Confidence</span>
+                  <span id="model1Conf">—</span>
+                </div>
+                <div class="conf-bar">
+                  <div class="conf-fill" id="model1ConfFill" style="width:0%"></div>
+                </div>
+              </div>
+              
+              <!-- Architecture & Metadata -->
+              <div class="metadata-section" id="model1Metadata">
+                <div class="metadata-item">
+                  <span class="metadata-label">Architecture:</span>
+                  <span class="metadata-value">Lightweight CNN (1.0x depth)</span>
+                </div>
+                <div class="metadata-item">
+                  <span class="metadata-label">Purpose:</span>
+                  <span class="metadata-value">Specific disease identification</span>
+                </div>
+                <div class="metadata-item">
+                  <span class="metadata-label">Training Data:</span>
+                  <span class="metadata-value">PlantVillage Dataset (38 classes)</span>
+                </div>
+              </div>
+
+              <!-- Performance on Test Data -->
+              <div class="performance-section" id="model1Performance">
+                <div class="perf-title">📊 Validation Metrics</div>
+                <div class="perf-grid">
+                  <div class="perf-item">
+                    <span class="perf-label">Accuracy</span>
+                    <span class="perf-value">93.33%</span>
+                  </div>
+                  <div class="perf-item">
+                    <span class="perf-label">Precision</span>
+                    <span class="perf-value">100.0%</span>
+                  </div>
+                  <div class="perf-item">
+                    <span class="perf-label">Recall</span>
+                    <span class="perf-value">93.33%</span>
+                  </div>
+                  <div class="perf-item">
+                    <span class="perf-label">F1 Score</span>
+                    <span class="perf-value">96.49%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── MODEL 2: RESNET50 ─── -->
+          <div class="model-card model-2" id="model2Card">
+            <div class="model-header">
+              <span class="model-badge model-2-badge">Model 2: ResNet50</span>
+              <span class="model-tag">⚖️ Binary Classifier</span>
+            </div>
+            <div class="model-content">
+              <div class="model-prediction" id="model2Prediction">—</div>
+              <div class="binary-breakdown" id="model2Breakdown">
+                <div class="binary-item healthy">
+                  <span>Healthy</span>
+                  <span class="binary-value" id="model2HealthyProb">—</span>
+                </div>
+                <div class="binary-item diseased">
+                  <span>Diseased</span>
+                  <span class="binary-value" id="model2DiseasedProb">—</span>
+                </div>
+              </div>
+
+              <!-- Architecture & Methodology -->
+              <div class="metadata-section" id="model2Metadata">
+                <div class="metadata-item">
+                  <span class="metadata-label">Architecture:</span>
+                  <span class="metadata-value">Deep Residual Network (50 layers) + Binary Head</span>
+                </div>
+                <div class="metadata-item">
+                  <span class="metadata-label">Approach:</span>
+                  <span class="metadata-value">Transfer Learning (ImageNet features)</span>
+                </div>
+                <div class="metadata-item">
+                  <span class="metadata-label">Purpose:</span>
+                  <span class="metadata-value">Robust health status validation</span>
+                </div>
+              </div>
+
+              <!-- Classification Head Info -->
+              <div class="tech-info" id="model2Tech">
+                <div class="tech-label">Binary Classification Head:</div>
+                <div class="tech-detail">FC(2048) → ReLU → Dropout(0.3) → Output(2)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── MODEL 3: ENSEMBLE CONSENSUS ─── -->
+          <div class="model-card model-3" id="model3Card">
+            <div class="model-header">
+              <span class="model-badge model-3-badge">Model 3: Ensemble</span>
+              <span class="model-tag">🤝 Cross-Model Validation</span>
+            </div>
+            <div class="model-content">
+              <div class="consensus-display" id="consensusDisplay">
+                <div class="consensus-badge" id="consensusBadge">—</div>
+                <div class="consensus-interpretation" id="consensusInterpretation"></div>
+              </div>
+
+              <!-- Detailed Comparison -->
+              <div class="comparison-section" id="comparisonSection">
+                <div class="comp-title">📋 Model Agreement Analysis</div>
+                <div class="comparison-table">
+                  <div class="comp-row">
+                    <div class="comp-cell header">Model</div>
+                    <div class="comp-cell header">Prediction</div>
+                    <div class="comp-cell header">Confidence</div>
+                  </div>
+                  <div class="comp-row">
+                    <div class="comp-cell">Model 1 (MobileNetV2)</div>
+                    <div class="comp-cell" id="comp1Prediction">—</div>
+                    <div class="comp-cell" id="comp1Confidence">—</div>
+                  </div>
+                  <div class="comp-row">
+                    <div class="comp-cell">Model 2 (ResNet50)</div>
+                    <div class="comp-cell" id="comp2Prediction">—</div>
+                    <div class="comp-cell" id="comp2Confidence">—</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Methodology -->
+              <div class="methodology-section" id="methodologySection">
+                <div class="method-label">🔬 Consensus Methodology:</div>
+                <div class="method-text" id="methodologyText"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confidence -->
+          <div class="conf-section" style="margin-top: 1rem;">
+            <div class="conf-label">
+              <span>Overall Confidence (Model 1)</span>
+              <span id="confText">—</span>
+            </div>
+            <div class="conf-bar">
+              <div class="conf-fill" id="confFill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <!-- Other possibilities -->
+          <div class="top3-section" id="top3Section"></div>
+
+          <hr class="section-divider" id="infoDivider" style="display:none">
+
+          <!-- Disease info cards -->
+          <div class="info-grid" id="infoGrid" style="display:none">
+            <div class="info-card symptoms">
+              <div class="info-card-title">🔴 Symptoms</div>
+              <div class="info-card-body" id="infoSymptoms"></div>
+            </div>
+            <div class="info-card cause">
+              <div class="info-card-title">🧫 Cause</div>
+              <div class="info-card-body" id="infoCause"></div>
+            </div>
+            <div class="info-card severity">
+              <div class="info-card-title">⚡ Severity</div>
+              <div class="info-card-body" id="infoSeverity"></div>
+            </div>
+            <div class="info-card spread">
+              <div class="info-card-title">💨 How it spreads</div>
+              <div class="info-card-body" id="infoSpread"></div>
+            </div>
+          </div>
+
+          <!-- Treatment & Prevention -->
+          <div class="tips-row" id="tipsRow" style="display:none">
+            <div class="tips-box treatment">
+              <div class="tips-box-title">🌱 Treatment</div>
+              <ul class="tips-list" id="tipsTreatment"></ul>
+            </div>
+            <div class="tips-box prevention">
+              <div class="tips-box-title">🛡️ Prevention</div>
+              <ul class="tips-list" id="tipsPrevention"></ul>
+            </div>
+          </div>
+
+          <p class="no-info-note" id="noInfoNote">ℹ️ Detailed info not available for this detection. Use "Chat about this result" for more.</p>
+
+          <!-- Buttons -->
+          <button class="try-again-btn" id="tryAgainBtn">↺ Try Another Image</button>
+          <a class="chat-result-btn" id="chatBtn" href="#">
+            💬 Chat about this result
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ── Disease knowledge base ──────────────────────────────────────────────
+    // Keys are lowercased partial matches against the model's label output.
+    const DISEASE_DB = {
+      "apple___apple_scab": {
+        symptoms: "Olive-green to dark lesions on leaves; scab-like spots on fruit skin; premature leaf drop.",
+        cause: "Fungus Venturia inaequalis, thrives in cool, wet spring weather.",
+        severity: "Moderate–High. Can cause significant defoliation and fruit loss if untreated.",
+        spread: "Wind-dispersed spores from infected fallen leaves; rain splashing.",
+        treatment: ["Apply fungicides (captan, myclobutanil) at bud break.", "Remove and destroy fallen leaves.", "Thin dense canopy to improve airflow."],
+        prevention: ["Plant scab-resistant apple varieties.", "Rake and compost leaves in autumn.", "Avoid overhead irrigation."]
+      },
+      "apple___black_rot": {
+        symptoms: "Circular brown-purple leaf spots; rotting fruit with concentric rings; cankers on branches.",
+        cause: "Fungus Botryosphaeria obtusa; enters through wounds or stressed tissue.",
+        severity: "High. Causes fruit rot and branch dieback.",
+        spread: "Spores spread by rain, wind and insects from infected wood.",
+        treatment: ["Prune out infected branches 15 cm below visible damage.", "Apply copper-based fungicides.", "Destroy mummified fruit."],
+        prevention: ["Maintain tree vigour with proper nutrition.", "Avoid bark wounds during pruning.", "Remove dead wood promptly."]
+      },
+      "apple___cedar_apple_rust": {
+        symptoms: "Bright orange-yellow spots on upper leaf surface; tube-like structures on the underside.",
+        cause: "Fungus Gymnosporangium juniperi-virginianae, requires both apple and juniper/cedar as hosts.",
+        severity: "Moderate. Reduces photosynthesis; rarely kills tree but weakens it.",
+        spread: "Basidiospores from cedar galls to apple in spring (requires wet conditions).",
+        treatment: ["Apply fungicides (myclobutanil, triadimefon) at pink-bud stage.", "Remove nearby juniper galls in late winter."],
+        prevention: ["Plant rust-resistant apple cultivars.", "Avoid planting apples near eastern red cedars.", "Apply protective sprays before infection periods."]
+      },
+      "cherry_(including_sour)___powdery_mildew": {
+        symptoms: "White powdery coating on young leaves; leaf curling and distortion; stunted shoot growth.",
+        cause: "Fungus Podosphaera clandestina; favoured by warm days and cool nights.",
+        severity: "Moderate. Mainly impacts young trees and nursery stock.",
+        spread: "Airborne conidia; no free water needed for infection.",
+        treatment: ["Spray with sulfur, potassium bicarbonate or neem oil.", "Remove and destroy heavily infected shoots."],
+        prevention: ["Ensure good air circulation through pruning.", "Avoid excessive nitrogen fertilisation.", "Plant in full sun."]
+      },
+      "corn_(maize)___cercospora_leaf_spot": {
+        symptoms: "Small rectangular grey lesions with dark borders running parallel to leaf veins.",
+        cause: "Fungus Cercospora zeae-maydis; thrives in humid, warm conditions.",
+        severity: "High in susceptible hybrids. Can cause severe yield loss.",
+        spread: "Wind and rain splash of spores from infected crop debris.",
+        treatment: ["Apply foliar fungicides (strobilurins, triazoles) at early sign.", "Rotate susceptible hybrids."],
+        prevention: ["Plant resistant corn hybrids.", "Rotate with non-host crops.", "Till crop debris to reduce inoculum."]
+      },
+      "corn_(maize)___common_rust_": {
+        symptoms: "Brick-red to brown oval pustules scattered on both leaf surfaces.",
+        cause: "Fungus Puccinia sorghi; favours cool (16–23°C), humid weather.",
+        severity: "Low–Moderate in most conditions; severe in cool humid seasons.",
+        spread: "Windborne urediospores from tropical sources.",
+        treatment: ["Fungicides (triazoles) effective if applied early.", "No curative once severe."],
+        prevention: ["Plant resistant hybrids.", "Early planting to avoid peak rust season.", "Scout fields regularly."]
+      },
+      "corn_(maize)___northern_leaf_blight": {
+        symptoms: "Long (5–15 cm) cigar-shaped, grey-green to tan lesions on leaves.",
+        cause: "Fungus Exserohilum turcicum; favoured by moderate temperatures and heavy dew.",
+        severity: "High. Can cause 30–50% yield loss in severe epidemics.",
+        spread: "Airborne conidia; survives in infected crop residue.",
+        treatment: ["Foliar fungicides (triazoles, strobilurins) at tassel stage.", "Remove infected residue after harvest."],
+        prevention: ["Use resistant hybrids.", "Crop rotation with non-host crops.", "Reduce residue with tillage."]
+      },
+      "grape___black_rot": {
+        symptoms: "Tan leaf spots with dark margins; small black fruit that shrivel into 'mummies'.",
+        cause: "Fungus Guignardia bidwellii; most damaging during warm, wet periods.",
+        severity: "Very High. Can destroy entire fruit crop.",
+        spread: "Ascospores and conidia spread by rain; mummified berries are key inoculum.",
+        treatment: ["Apply fungicides (myclobutanil, captan) from bud break through bloom.", "Remove mummified berries promptly."],
+        prevention: ["Good canopy management for airflow.", "Remove and destroy infected plant material.", "Avoid overhead irrigation."]
+      },
+      "grape___esca_(black_measles)": {
+        symptoms: "Interveinal leaf chlorosis; dark berry spots; internal brown streaking in wood.",
+        cause: "Complex of fungi (Phaeomoniella, Phaeoacremonium) attacking vascular tissue.",
+        severity: "High. Chronic and progressive; no cure once established.",
+        spread: "Pruning wounds are primary infection sites.",
+        treatment: ["Remove and burn infected canes.", "Sodium arsenite (where legal) as wound protectant.", "No fully effective cure."],
+        prevention: ["Protect pruning wounds with fungicide paste.", "Prune in dry weather.", "Use clean pruning tools."]
+      },
+      "grape___leaf_blight_(isariopsis_leaf_spot)": {
+        symptoms: "Irregular brown spots with yellow halos on leaves; premature defoliation.",
+        cause: "Fungus Pseudocercospora vitis; favoured by warm, humid weather.",
+        severity: "Moderate. Weakens vines by reducing photosynthesis.",
+        spread: "Conidia dispersed by wind and rain splash.",
+        treatment: ["Copper-based fungicides or mancozeb sprays.", "Remove fallen infected leaves."],
+        prevention: ["Ensure good canopy aeration.", "Avoid wetting foliage when irrigating.", "Apply preventive fungicide program."]
+      },
+      "orange___haunglongbing_(citrus_greening)": {
+        symptoms: "Blotchy mottle on leaves; lopsided, bitter, green fruit; yellowing shoots.",
+        cause: "Bacterium Candidatus Liberibacter asiaticus; transmitted by Asian citrus psyllid.",
+        severity: "Devastating. Fatal to trees; no cure exists.",
+        spread: "Asian citrus psyllid insect; infected budwood.",
+        treatment: ["No cure. Manage psyllid with insecticides.", "Remove and destroy infected trees to limit spread."],
+        prevention: ["Use certified disease-free nursery stock.", "Control psyllid populations vigilantly.", "Quarantine infected areas."]
+      },
+      "peach___bacterial_spot": {
+        symptoms: "Water-soaked leaf spots turning brown with yellow halos; cracked fruit lesions.",
+        cause: "Bacterium Xanthomonas arboricola pv. pruni; severe in warm, wet conditions.",
+        severity: "Moderate–High. Causes defoliation and fruit blemishes.",
+        spread: "Rain splash and wind spread bacteria from infected tissue.",
+        treatment: ["Copper bactericides applied at petal fall and beyond.", "Oxytetracycline sprays in some regions."],
+        prevention: ["Plant resistant peach varieties.", "Avoid overhead irrigation.", "Prune to improve airflow."]
+      },
+      "pepper,_bell___bacterial_spot": {
+        symptoms: "Small water-soaked spots on leaves turning brown with yellow halos; raised scabby spots on fruit.",
+        cause: "Bacterium Xanthomonas euvesicatoria; favoured by warm (24–30°C), wet weather.",
+        severity: "High. Major cause of yield loss in warm humid climates.",
+        spread: "Rain splash, irrigation water, infected seed, and handling.",
+        treatment: ["Copper bactericides + mancozeb tank mix.", "Remove heavily infected plants.", "Avoid working in wet fields."],
+        prevention: ["Use certified disease-free seed.", "Rotate crops (avoid Solanaceae for 2+ years).", "Drip-irrigate instead of overhead watering."]
+      },
+      "potato___early_blight": {
+        symptoms: "Dark brown circular spots with target-ring pattern on older leaves; yellowing around lesions.",
+        cause: "Fungus Alternaria solani; thrives after plant stress (drought, low nutrients).",
+        severity: "Moderate. Reduces yield by weakening foliage.",
+        spread: "Airborne conidia; splashing water; infected seed tubers.",
+        treatment: ["Fungicides (chlorothalonil, mancozeb) at first sign.", "Improve soil fertility to reduce plant stress."],
+        prevention: ["Adequate potassium fertilisation.", "Avoid drought stress.", "Crop rotation every 2–3 years."]
+      },
+      "potato___late_blight": {
+        symptoms: "Water-soaked lesions rapidly turning brown-black; white mouldy growth on leaf undersides; tuber rot.",
+        cause: "Oomycete Phytophthora infestans; the organism behind the Irish Famine.",
+        severity: "Devastating. Can destroy an entire crop in days under ideal conditions.",
+        spread: "Sporangia dispersed by wind and rain; infected seed tubers.",
+        treatment: ["Systemic fungicides (metalaxyl, cymoxanil) applied protectively.", "Destroy infected haul before harvest."],
+        prevention: ["Use certified disease-free seed potatoes.", "Plant resistant varieties.", "Hilling and drainage to protect tubers."]
+      },
+      "squash___powdery_mildew": {
+        symptoms: "White powdery patches on leaf surfaces; yellowing and eventual leaf death.",
+        cause: "Fungi Podosphaera xanthii / Erysiphe cichoracearum; favoured by dry weather with high humidity.",
+        severity: "Moderate. Shortens plant life and reduces yield.",
+        spread: "Wind-dispersed spores; no free water needed.",
+        treatment: ["Neem oil, potassium bicarbonate, or sulfur sprays.", "Remove heavily infected leaves."],
+        prevention: ["Plant resistant varieties.", "Space plants for good airflow.", "Avoid excess nitrogen."]
+      },
+      "strawberry___leaf_scorch": {
+        symptoms: "Small purple spots enlarging with tan centres; leaf margins turn brown and scorched-looking.",
+        cause: "Fungus Diplocarpon earlianum; favoured by warm wet conditions.",
+        severity: "Moderate. Reduces plant vigour and berry yield.",
+        spread: "Splash dispersal of conidia from infected leaves.",
+        treatment: ["Captan or myclobutanil fungicides.", "Remove old leaves in spring."],
+        prevention: ["Plant disease-resistant varieties.", "Avoid overhead watering.", "Good bed drainage."]
+      },
+      "tomato___bacterial_spot": {
+        symptoms: "Small water-soaked leaf spots becoming brown with yellow halos; raised scabby fruit lesions.",
+        cause: "Xanthomonas spp. bacteria; severe in warm, wet conditions.",
+        severity: "High. Causes defoliation and unmarketable fruit.",
+        spread: "Rain splash, irrigation water, contaminated tools and seed.",
+        treatment: ["Copper + mancozeb bactericide sprays.", "Remove infected plant debris."],
+        prevention: ["Certified disease-free seed.", "Crop rotation.", "Drip irrigation."]
+      },
+      "tomato___early_blight": {
+        symptoms: "Dark brown spots with concentric rings on older leaves; collar rot at stem base.",
+        cause: "Fungus Alternaria solani; common in warm humid conditions.",
+        severity: "Moderate–High. Causes progressive defoliation.",
+        spread: "Airborne spores; splash from infected soil.",
+        treatment: ["Fungicides (chlorothalonil, mancozeb, azoxystrobin).", "Stake plants to keep foliage off soil."],
+        prevention: ["Mulch to reduce soil splash.", "Adequate plant spacing.", "Crop rotation."]
+      },
+      "tomato___late_blight": {
+        symptoms: "Greyish-green water-soaked lesions; white fuzzy growth on underside; dark fruit rot.",
+        cause: "Oomycete Phytophthora infestans; extremely fast-spreading in cool wet weather.",
+        severity: "Devastating. Can destroy a crop within a week.",
+        spread: "Windborne sporangia; infected transplants.",
+        treatment: ["Systemic fungicides (metalaxyl) applied immediately.", "Remove and destroy infected plants."],
+        prevention: ["Resistant varieties.", "Avoid overhead irrigation.", "Scout frequently in cool wet weather."]
+      },
+      "tomato___leaf_mold": {
+        symptoms: "Pale green/yellow spots on upper leaf; olive-green to brown velvety mold below.",
+        cause: "Fungus Passalora fulva; thrives in high humidity (>85%) and moderate temperatures.",
+        severity: "Moderate. Common in greenhouses; rare outdoors.",
+        spread: "Airborne conidia spread easily in enclosed spaces.",
+        treatment: ["Reduce humidity; increase ventilation.", "Fungicides (chlorothalonil, mancozeb)."],
+        prevention: ["Ventilate greenhouses well.", "Avoid leaf wetness.", "Space plants for airflow."]
+      },
+      "tomato___septoria_leaf_spot": {
+        symptoms: "Numerous small circular spots with dark borders and grey centres on lower leaves first.",
+        cause: "Fungus Septoria lycopersici; severe during wet, warm weather.",
+        severity: "High. Causes rapid defoliation from bottom up.",
+        spread: "Rain splash of spores from soil and infected tissue.",
+        treatment: ["Remove lower infected leaves.", "Fungicides (chlorothalonil, mancozeb, azoxystrobin)."],
+        prevention: ["Mulch soil surface.", "Stake and prune for airflow.", "Rotate crops annually."]
+      },
+      "tomato___spider_mites": {
+        symptoms: "Stippled, yellowed leaves; fine webbing on underside; bronzed appearance.",
+        cause: "Two-spotted spider mite (Tetranychus urticae); worsened by drought and heat.",
+        severity: "Moderate–High in dry seasons. Rapid population explosion.",
+        spread: "Wind, clothing, tools; thrive in hot dry conditions.",
+        treatment: ["Miticides (abamectin, bifenazate).", "Strong water spray to dislodge mites.", "Introduce predatory mites."],
+        prevention: ["Maintain adequate soil moisture.", "Avoid broad-spectrum insecticides that kill natural enemies.", "Monitor underside of leaves regularly."]
+      },
+      "tomato___target_spot": {
+        symptoms: "Circular brown lesions with concentric rings (bullseye pattern) on leaves and fruit.",
+        cause: "Fungus Corynespora cassiicola; favoured by warm humid conditions.",
+        severity: "Moderate. Can cause defoliation and fruit spotting.",
+        spread: "Airborne spores; survives on crop debris.",
+        treatment: ["Fungicides (azoxystrobin, fluxapyroxad).", "Remove and destroy infected debris."],
+        prevention: ["Improve canopy ventilation.", "Crop rotation.", "Avoid overhead irrigation."]
+      },
+      "tomato___tomato_mosaic_virus": {
+        symptoms: "Mosaic light/dark green pattern on leaves; leaf distortion; reduced fruit size.",
+        cause: "Tomato mosaic virus (ToMV); mechanically transmitted.",
+        severity: "Moderate–High. No cure; infected plants remain source of virus.",
+        spread: "Contaminated hands, tools, and infected seed.",
+        treatment: ["Remove and destroy infected plants.", "No chemical cure available."],
+        prevention: ["Use virus-free certified seed.", "Wash hands and sterilise tools between plants.", "Control aphid vectors."]
+      },
+      "tomato___tomato_yellow_leaf_curl_virus": {
+        symptoms: "Upward leaf curling; yellowing of leaf margins; stunted growth; flower drop.",
+        cause: "Tomato yellow leaf curl virus (TYLCV); transmitted exclusively by whitefly.",
+        severity: "Devastating if infection occurs early. No cure.",
+        spread: "Bemisia tabaci (silverleaf whitefly) is the sole vector.",
+        treatment: ["Control whitefly with insecticides (imidacloprid, spirotetramat).", "Remove and destroy infected plants."],
+        prevention: ["Use TYLCV-resistant varieties.", "Reflective mulches to repel whitefly.", "Use insect-proof netting in nurseries."]
+      },
+      "healthy": {
+        symptoms: "No disease symptoms detected.",
+        cause: "N/A — Plant appears healthy.",
+        severity: "None detected.",
+        spread: "N/A",
+        treatment: ["Maintain regular watering and fertilisation.", "Monitor regularly for early signs of stress."],
+        prevention: ["Continue good agronomic practices.", "Rotate crops seasonally.", "Keep area weed-free to reduce pest habitat."]
+      }
+    };
+
+    // Normalise a model label to a DB key
+    function lookupDisease(label) {
+      const norm = label.toLowerCase().replace(/ /g, '_').replace(/-/g, '_');
+      // Exact match first
+      if (DISEASE_DB[norm]) return DISEASE_DB[norm];
+      // Partial match
+      for (const key of Object.keys(DISEASE_DB)) {
+        if (norm.includes(key) || key.includes(norm)) return DISEASE_DB[key];
+      }
+      // Try tokens
+      const tokens = norm.split(/[_,\s]+/);
+      for (const key of Object.keys(DISEASE_DB)) {
+        if (tokens.some(t => t.length > 4 && key.includes(t))) return DISEASE_DB[key];
+      }
+      return null;
+    }
+
+    // ── DOM refs ────────────────────────────────────────────────────────────
+    const fileInput  = document.getElementById('fileInput');
+    const dropzone   = document.getElementById('dropzone');
+    const preview    = document.getElementById('preview');
+    const uploadIcon = document.getElementById('uploadIcon');
+    const dropText   = document.getElementById('dropText');
+    const detectBtn  = document.getElementById('detectBtn');
+    const spinner    = document.getElementById('spinner');
+    const btnText    = document.getElementById('btnText');
+    const placeholder  = document.getElementById('placeholder');
+    const analyzing    = document.getElementById('analyzing');
+    const resultPanel  = document.getElementById('resultPanel');
+    let selectedFile = null;
+
+    function showRight(state) {
+      placeholder.style.display = state === 'placeholder' ? 'block' : 'none';
+      analyzing.style.display   = state === 'analyzing'   ? 'flex'  : 'none';
+      resultPanel.style.display = state === 'result'      ? 'block' : 'none';
+    }
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files[0]) handleFile(fileInput.files[0]);
+    });
+
+    function handleFile(file) {
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        uploadIcon.style.display = 'none';
+        dropText.style.display   = 'none';
+      };
+      reader.readAsDataURL(file);
+      detectBtn.disabled = false;
+      showRight('placeholder');
+    }
+
+    dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault(); dropzone.classList.remove('drag-over');
+      if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+
+    detectBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+      detectBtn.disabled = true;
+      spinner.style.display = 'block';
+      btnText.textContent = 'Analyzing...';
+      showRight('analyzing');
+
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+
+      try {
+        const res  = await fetch('/predict/', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) showResult(data);
+        else showResult({ error: data.error || 'Unknown error' });
+      } catch (err) {
+        showResult({ error: 'Network error. Is the server running?' });
+      } finally {
+        detectBtn.disabled = false;
+        spinner.style.display = 'none';
+        btnText.textContent = 'Detect Again';
+      }
+    });
+
+    function showResult(data) {
+      showRight('result');
+      const chatBtn = document.getElementById('chatBtn');
+
+      if (data.error) {
+        document.getElementById('resultIcon').textContent = '❌';
+        document.getElementById('resultIcon').className   = 'result-icon';
+        document.getElementById('resultName').textContent = data.error;
+        document.getElementById('statusBadge').textContent = '';
+        document.getElementById('confText').textContent   = '';
+        document.getElementById('confFill').style.width   = '0%';
+        document.getElementById('top3Section').innerHTML  = '';
+        hideInfoSections();
+        chatBtn.style.display = 'none';
+        return;
+      }
+
+      // ─────────────────────────────────────────────────────────────────
+      // DISPLAY MODEL 1 RESULT
+      // ─────────────────────────────────────────────────────────────────
+      const model1Data = data.model_1;
+      const model1Meta = data.metadata.model_1;
+      const isHealthy = model1Data.status === 'healthy';
+      
+      document.getElementById('resultIcon').textContent = isHealthy ? '✅' : '⚠️';
+      document.getElementById('resultIcon').className   = 'result-icon ' + model1Data.status;
+      document.getElementById('resultName').textContent = model1Data.prediction;
+
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = isHealthy ? '✅ Healthy' : '⚠️ Diseased';
+      badge.className   = 'status-badge ' + model1Data.status;
+
+      document.getElementById('confText').textContent = model1Data.confidence + '%';
+      document.getElementById('confFill').style.width = model1Data.confidence + '%';
+
+      // Model 1 Card with comprehensive info
+      document.getElementById('model1Prediction').textContent = model1Data.prediction;
+      document.getElementById('model1Conf').textContent = model1Data.confidence + '%';
+      document.getElementById('model1ConfFill').style.width = model1Data.confidence + '%';
+
+      // ─────────────────────────────────────────────────────────────────
+      // DISPLAY MODEL 2 RESULT
+      // ─────────────────────────────────────────────────────────────────
+      const model2Data = data.model_2;
+      document.getElementById('model2Prediction').textContent = model2Data.prediction;
+      document.getElementById('model2HealthyProb').textContent = model2Data.healthy_prob + '%';
+      document.getElementById('model2DiseasedProb').textContent = model2Data.diseased_prob + '%';
+
+      // ─────────────────────────────────────────────────────────────────
+      // DISPLAY MODEL 3 ENSEMBLE CONSENSUS
+      // ─────────────────────────────────────────────────────────────────
+      const ensembleData = data.ensemble;
+      const consensusBadge = document.getElementById('consensusBadge');
+      consensusBadge.textContent = ensembleData.consensus;
+      consensusBadge.className = 'consensus-badge ' + (ensembleData.agreement ? 'agree' : '');
+
+      // Consensus Interpretation
+      const consensusInterpretation = document.getElementById('consensusInterpretation');
+      if (ensembleData.agreement) {
+        consensusInterpretation.innerHTML = `
+          <strong>✅ High Confidence Prediction</strong><br>
+          Both models independently agreed on the plant's health status. This cross-validation 
+          significantly increases prediction reliability.
+        `;
+      } else {
+        consensusInterpretation.innerHTML = `
+          <strong>⚠️ Conflicting Predictions</strong><br>
+          Models disagreed on plant health status. Review disease severity and consider 
+          consulting expert validation or obtaining additional images from different angles.
+        `;
+      }
+
+      // Comparison Table
+      document.getElementById('comp1Prediction').textContent = ensembleData.model_1_says;
+      document.getElementById('comp2Prediction').textContent = ensembleData.model_2_says;
+      document.getElementById('comp1Confidence').textContent = model1Data.confidence + '%';
+      document.getElementById('comp2Confidence').textContent = model2Data.confidence + '%';
+
+      // Methodology Text
+      const methodologyText = document.getElementById('methodologyText');
+      methodologyText.innerHTML = `
+        Model 3 uses ensemble learning: if Model 1 (disease-specific classifier) and Model 2 
+        (binary health classifier) predict the same health status (both agree plant is healthy 
+        OR both agree it's diseased), the prediction is marked as AGREE (high confidence). 
+        If they disagree, manual review is recommended.
+      `;
+
+      // ─────────────────────────────────────────────────────────────────
+      // TOP 3 PREDICTIONS
+      // ─────────────────────────────────────────────────────────────────
+      const top3El = document.getElementById('top3Section');
+      if (model1Data.top3 && model1Data.top3.length > 1) {
+        top3El.innerHTML = `
+          <div class="top3-title">Other Possibilities (Model 1)</div>
+          ${model1Data.top3.slice(1).map(t =>
+            `<div class="top3-item"><span>${t.label}</span><span class="top3-conf">${t.confidence}%</span></div>`
+          ).join('')}
+        `;
+      } else {
+        top3El.innerHTML = '';
+      }
+
+      // ─────────────────────────────────────────────────────────────────
+      // INJECT DISEASE INFO (from Model 1 prediction)
+      // ─────────────────────────────────────────────────────────────────
+      const info = lookupDisease(model1Data.prediction);
+      const divider   = document.getElementById('infoDivider');
+      const infoGrid  = document.getElementById('infoGrid');
+      const tipsRow   = document.getElementById('tipsRow');
+      const noInfoNote = document.getElementById('noInfoNote');
+
+      if (info) {
+        divider.style.display  = 'block';
+        infoGrid.style.display = 'grid';
+        tipsRow.style.display  = 'grid';
+        noInfoNote.style.display = 'none';
+
+        document.getElementById('infoSymptoms').textContent = info.symptoms;
+        document.getElementById('infoCause').textContent    = info.cause;
+        document.getElementById('infoSeverity').textContent = info.severity;
+        document.getElementById('infoSpread').textContent   = info.spread;
+
+        document.getElementById('tipsTreatment').innerHTML =
+          info.treatment.map(t => `<li>${t}</li>`).join('');
+        document.getElementById('tipsPrevention').innerHTML =
+          info.prevention.map(p => `<li>${p}</li>`).join('');
+      } else {
+        divider.style.display  = 'block';
+        infoGrid.style.display = 'none';
+        tipsRow.style.display  = 'none';
+        noInfoNote.style.display = 'block';
+      }
+
+      // ─────────────────────────────────────────────────────────────────
+      // CHAT BUTTON URL
+      // ─────────────────────────────────────────────────────────────────
+      const params = new URLSearchParams({
+        disease:    model1Data.prediction,
+        confidence: model1Data.confidence,
+        status:     model1Data.status
+      });
+      chatBtn.href = `/chat/?${params.toString()}`;
+      chatBtn.style.display = 'flex';
+    }
+
+    function hideInfoSections() {
+      document.getElementById('infoDivider').style.display  = 'none';
+      document.getElementById('infoGrid').style.display     = 'none';
+      document.getElementById('tipsRow').style.display      = 'none';
+      document.getElementById('noInfoNote').style.display   = 'none';
+    }
+
+    document.getElementById('tryAgainBtn').addEventListener('click', () => {
+      fileInput.value = '';
+      selectedFile = null;
+      preview.style.display    = 'none';
+      uploadIcon.style.display = 'flex';
+      dropText.style.display   = 'block';
+      detectBtn.disabled = true;
+      btnText.textContent = 'Detect Disease';
+      document.getElementById('chatBtn').style.display = 'none';
+      showRight('placeholder');
+    });
+  </script>
+</body>
+</html>

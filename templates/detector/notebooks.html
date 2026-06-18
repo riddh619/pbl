@@ -1,0 +1,1253 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Farmer Academy – Plant AI</title>
+  <meta name="description" content="Educate yourself on modern farming techniques, precision irrigation, organic soil optimization, and pest management.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green-dark:  #0b1f0b;
+      --green-mid:   #163d16;
+      --green-bg:    #122812;
+      --green-light: #3a9e3a;
+      --gold:        #f5c842;
+      --gold-hover:  #e0b030;
+      --white:       #ffffff;
+      --text-muted:  #a8cfa8;
+      --border-light:rgba(76, 175, 80, 0.2);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(10,30,10,0.52), rgba(10,30,10,0.52)),
+        url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=1600&q=80') center/cover no-repeat fixed;
+      display: flex;
+      flex-direction: column;
+      color: #333;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      height: 60px;
+      background: var(--green-dark);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 1rem;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(76,175,80,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--green-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .nav-links {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .nav-item {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+      color: var(--white);
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.06);
+    }
+
+    /* ── Page Header ── */
+    .header-banner {
+      text-align: center;
+      padding: 2.5rem 1.5rem 1.5rem;
+      color: var(--white);
+      animation: fadeIn 0.8s ease both;
+    }
+
+    .header-banner .badge {
+      display: inline-block;
+      background: rgba(76,175,80,0.2);
+      border: 1px solid rgba(76,175,80,0.5);
+      color: #90ee90;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 0.8rem;
+    }
+
+    .header-banner h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+    }
+
+    .header-banner h1 span {
+      color: var(--gold);
+    }
+
+    .header-banner p {
+      max-width: 600px;
+      margin: 0 auto;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* ── Split Layout ── */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 0 1.5rem 2.5rem;
+    }
+
+    .split-container {
+      display: flex;
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 1200px;
+      align-items: flex-start;
+    }
+
+    /* Sidebar list */
+    .sidebar-panel {
+      flex: 0 0 380px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      animation: slideIn 0.5s ease both;
+    }
+
+    .notebook-card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(16px);
+      border-radius: 16px;
+      padding: 1.25rem;
+      cursor: pointer;
+      border: 2px solid transparent;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .notebook-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+      border-color: rgba(76, 175, 80, 0.4);
+    }
+
+    .notebook-card.active {
+      border-color: var(--green-light);
+      background: #ffffff;
+      box-shadow: 0 15px 35px rgba(76, 175, 80, 0.15);
+    }
+
+    .notebook-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(76, 175, 80, 0.1);
+      color: var(--green-mid);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      transition: background 0.25s;
+    }
+
+    .notebook-card.active .notebook-icon {
+      background: var(--green-light);
+      color: var(--white);
+    }
+
+    .notebook-meta {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .notebook-category {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--green-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .notebook-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      line-height: 1.3;
+    }
+
+    .notebook-desc {
+      font-size: 0.78rem;
+      color: #666;
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    .card-footer-tags {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      align-items: center;
+    }
+
+    .tag-badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 10px;
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    .tag-badge.difficulty {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .tag-badge.difficulty.advanced {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .status-dot {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 0.95rem;
+    }
+
+    /* Reading Panel */
+    .reader-panel {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      padding: 2.25rem;
+      min-height: 580px;
+      animation: slideIn 0.5s 0.1s ease both;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Welcome state */
+    .welcome-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #666;
+      padding: 2rem;
+    }
+
+    .welcome-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      animation: bounce 2s infinite;
+    }
+
+    .welcome-container h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: var(--green-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-container p {
+      max-width: 420px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    /* Article content state */
+    .article-container {
+      display: none;
+      flex-direction: column;
+    }
+
+    .article-header {
+      border-bottom: 1px solid #eee;
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .article-category {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--green-light);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+    }
+
+    .article-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--green-dark);
+      line-height: 1.25;
+      margin-bottom: 0.6rem;
+    }
+
+    .article-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Article body styling */
+    .article-body {
+      font-size: 0.94rem;
+      color: #2c3e50;
+      line-height: 1.7;
+    }
+
+    .article-body p {
+      margin-bottom: 1.2rem;
+    }
+
+    .article-body h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin: 1.8rem 0 0.8rem;
+      border-left: 4px solid var(--green-light);
+      padding-left: 10px;
+    }
+
+    .article-body ul {
+      margin-bottom: 1.2rem;
+      padding-left: 1.5rem;
+    }
+
+    .article-body li {
+      margin-bottom: 0.4rem;
+    }
+
+    /* Highlight box / Callouts */
+    .pro-tip {
+      background: #e8f5e9;
+      border-left: 4px solid #4caf50;
+      padding: 1rem 1.2rem;
+      border-radius: 8px;
+      margin: 1.4rem 0;
+      font-size: 0.88rem;
+      color: #1b5e20;
+    }
+
+    .pro-tip strong {
+      display: block;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--green-mid);
+    }
+
+    .wisdom-box {
+      background: #fff8e1;
+      border-left: 4px solid #ffb300;
+      padding: 1rem 1.2rem;
+      border-radius: 8px;
+      margin: 1.4rem 0;
+      font-size: 0.88rem;
+      color: #5d4037;
+    }
+
+    .wisdom-box strong {
+      display: block;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: #b78103;
+    }
+
+    .article-divider {
+      border: none;
+      border-top: 1px dashed #ddd;
+      margin: 2rem 0;
+    }
+
+    /* ── Interactive Quiz Section ── */
+    .quiz-section {
+      background: #f9fbf9;
+      border: 1.5px solid var(--border-light);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .quiz-section h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--green-dark);
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quiz-intro {
+      font-size: 0.82rem;
+      color: #666;
+      margin-bottom: 1.25rem;
+    }
+
+    .question-container {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eef2ee;
+    }
+
+    .question-container:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .question-text {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.8rem;
+      display: flex;
+      gap: 6px;
+    }
+
+    .question-num {
+      color: var(--green-light);
+      font-weight: 700;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .option-btn {
+      background: #ffffff;
+      border: 1.5px solid #e0e0e0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      outline: none;
+      color: #444;
+      font-weight: 500;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--green-light);
+      background: rgba(76, 175, 80, 0.03);
+    }
+
+    .option-btn.correct {
+      border-color: #2e7d32;
+      background: #e8f5e9;
+      color: #1b5e20;
+      font-weight: 600;
+    }
+
+    .option-btn.incorrect {
+      border-color: #c62828;
+      background: #ffebee;
+      color: #b71c1c;
+    }
+
+    .option-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    .explanation {
+      margin-top: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.02);
+      font-size: 0.78rem;
+      color: #555;
+      line-height: 1.4;
+      display: none;
+      animation: fadeIn 0.3s ease both;
+    }
+
+    /* Quiz Completion Badge Area */
+    .quiz-completion-card {
+      display: none;
+      background: linear-gradient(135deg, #fff9c4, #fff59d);
+      border: 1.5px solid #fbc02d;
+      border-radius: 12px;
+      padding: 1.2rem;
+      text-align: center;
+      margin-top: 1.25rem;
+      animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+
+    .badge-icon {
+      font-size: 2.2rem;
+      margin-bottom: 4px;
+      display: inline-block;
+      animation: rotateScale 0.6s ease;
+    }
+
+    .quiz-completion-card h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: #f57f17;
+      margin-bottom: 2px;
+    }
+
+    .quiz-completion-card p {
+      font-size: 0.78rem;
+      color: #5d4037;
+      line-height: 1.4;
+    }
+
+    /* Chat Button */
+    .chat-btn-wrapper {
+      margin-top: 1.5rem;
+    }
+
+    .btn-chat-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+      color: var(--white);
+      text-decoration: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 15px rgba(22, 61, 22, 0.25);
+      transition: all 0.25s;
+    }
+
+    .btn-chat-link:hover {
+      opacity: 0.93;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(22, 61, 22, 0.35);
+    }
+
+    /* ── Mobile Layout Adjustment ── */
+    .mobile-back-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--green-mid);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .split-container {
+        flex-direction: column;
+      }
+      .sidebar-panel {
+        flex: unset;
+        width: 100%;
+      }
+      .reader-panel {
+        display: none; /* Toggled via JS on mobile */
+        width: 100%;
+        padding: 1.5rem;
+      }
+      .sidebar-panel.hidden {
+        display: none;
+      }
+      .reader-panel.active {
+        display: flex;
+      }
+      .mobile-back-btn {
+        display: flex;
+      }
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleUp {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    @keyframes rotateScale {
+      0% { transform: scale(0) rotate(-45deg); }
+      70% { transform: scale(1.2) rotate(10deg); }
+      100% { transform: scale(1) rotate(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <a class="nav-logo" href="{% url 'home' %}">
+      <div class="logo-icon">🌿</div>
+      Plant AI
+    </a>
+    <div class="nav-links">
+      <a class="nav-item" href="{% url 'home' %}">Home</a>
+      <a class="nav-item" href="{% url 'upload' %}">Detect Disease</a>
+      <a class="nav-item" href="{% url 'about' %}">About Model</a>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="header-banner">
+    <div class="badge">📚 Agricultural Library</div>
+    <h1>Farmer <span>Academy</span></h1>
+    <p>Educate yourself on sustainable techniques, water efficiency, and crop health to boost your yields budget-friendly.</p>
+  </div>
+
+  <!-- Main Split Layout -->
+  <main>
+    <div class="split-container">
+      
+      <!-- LEFT: Sidebar Notebook List -->
+      <div class="sidebar-panel" id="sidebarPanel">
+        <!-- Notebook 1 -->
+        <div class="notebook-card" onclick="selectNotebook(1)" id="card-1">
+          <div class="notebook-icon">🧪</div>
+          <div class="notebook-meta">
+            <span class="notebook-category">Soil & Nutrition</span>
+            <div class="notebook-title">Soil Chemistry & Nutrient Optimization</div>
+            <p class="notebook-desc">Master the N-P-K balances, organic composting, and budget-friendly soil testing.</p>
+            <div class="card-footer-tags">
+              <span class="tag-badge">6 min read</span>
+              <span class="tag-badge difficulty">Beginner</span>
+            </div>
+          </div>
+          <div class="status-dot" id="status-1">📖</div>
+        </div>
+
+        <!-- Notebook 2 -->
+        <div class="notebook-card" onclick="selectNotebook(2)" id="card-2">
+          <div class="notebook-icon">💧</div>
+          <div class="notebook-meta">
+            <span class="notebook-category">Water Management</span>
+            <div class="notebook-title">Precision Irrigation & Smart Conservation</div>
+            <p class="notebook-desc">Learn drop-by-drop line setups, mulching secrets, and sensor scheduling.</p>
+            <div class="card-footer-tags">
+              <span class="tag-badge">5 min read</span>
+              <span class="tag-badge difficulty">Intermediate</span>
+            </div>
+          </div>
+          <div class="status-dot" id="status-2">📖</div>
+        </div>
+
+        <!-- Notebook 3 -->
+        <div class="notebook-card" onclick="selectNotebook(3)" id="card-3">
+          <div class="notebook-icon">🐞</div>
+          <div class="notebook-meta">
+            <span class="notebook-category">Pest & Health</span>
+            <div class="notebook-title">Organic Integrated Pest Management (IPM)</div>
+            <p class="notebook-desc">Control pests using biological solutions, crop rotations, and non-toxic recipes.</p>
+            <div class="card-footer-tags">
+              <span class="tag-badge">7 min read</span>
+              <span class="tag-badge difficulty">Intermediate</span>
+            </div>
+          </div>
+          <div class="status-dot" id="status-3">📖</div>
+        </div>
+
+        <!-- Notebook 4 -->
+        <div class="notebook-card" onclick="selectNotebook(4)" id="card-4">
+          <div class="notebook-icon">🌱</div>
+          <div class="notebook-meta">
+            <span class="notebook-category">Modern Farming</span>
+            <div class="notebook-title">Hydroponics & Indoor Vertical Farming</div>
+            <p class="notebook-desc">Grow high-density crops soil-free using NFT, deep water cultures, and pH control.</p>
+            <div class="card-footer-tags">
+              <span class="tag-badge">8 min read</span>
+              <span class="tag-badge difficulty advanced">Advanced</span>
+            </div>
+          </div>
+          <div class="status-dot" id="status-4">📖</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Reader & Quiz Pane -->
+      <div class="reader-panel" id="readerPanel">
+        <!-- Welcome view when nothing is selected -->
+        <div class="welcome-container" id="welcomeView">
+          <div class="welcome-icon">📘</div>
+          <h2>Select a Notebook to Begin</h2>
+          <p>Choose one of the farming modules on the left to read detailed guides, complete test quizzes, and earn your completion badges!</p>
+        </div>
+
+        <!-- Notebook Article View (Dynamic content injected) -->
+        <div class="article-container" id="articleView">
+          <button class="mobile-back-btn" onclick="goBackToList()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Back to Library
+          </button>
+          
+          <div class="article-header">
+            <span class="article-category" id="artCategory">CATEGORY</span>
+            <h2 class="article-title" id="artTitle">Title</h2>
+            <div class="article-meta-row">
+              <div class="meta-item">⏱️ <span id="artReadTime">0 min read</span></div>
+              <div class="meta-item">🎯 Difficulty: <span id="artDiff">Beginner</span></div>
+              <div class="meta-item">✍️ Author: <span>PlantAI Agronomists</span></div>
+            </div>
+          </div>
+
+          <div class="article-body" id="artBody">
+            <!-- Injected by JS -->
+          </div>
+
+          <hr class="article-divider" />
+
+          <!-- Interactive Quiz -->
+          <div class="quiz-section" id="quizSection">
+            <h3>📝 Quick Test: Check Your Knowledge</h3>
+            <p class="quiz-intro">Correctly answer the questions below to test your understanding and unlock your topic completion badge!</p>
+            
+            <div id="quizQuestionsWrapper">
+              <!-- Injected by JS -->
+            </div>
+
+            <!-- Completion Alert -->
+            <div class="quiz-completion-card" id="quizCompletionCard">
+              <span class="badge-icon">🏆</span>
+              <h4>Knowledge Certified!</h4>
+              <p id="quizCompletionText">Congratulations! You answered all questions correctly and completed this module.</p>
+            </div>
+          </div>
+
+          <!-- Ask PlantAI integrated button -->
+          <div class="chat-btn-wrapper">
+            <a href="#" class="btn-chat-link" id="chatLink">
+              💬 Discuss this topic with PlantAI Assistant
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // ── Notebook Database ──────────────────────────────────────────────────
+    const NOTEBOOKS = {
+      1: {
+        category: "Soil & Nutrition",
+        title: "Soil Chemistry & Nutrient Optimization",
+        readTime: "6 min read",
+        difficulty: "Beginner",
+        chatTopic: "Soil Health",
+        body: `
+          <p>Healthy soil is the literal foundation of farming. A fertile, biology-rich soil supports robust immune systems in crops, making them significantly less susceptible to pests, diseases, and environmental stresses.</p>
+          
+          <h3>Understanding N-P-K Ratios</h3>
+          <p>Commercial fertilizers and natural fertilizers are labeled with three numbers representing the percentage of <strong>Nitrogen (N)</strong>, <strong>Phosphorus (P)</strong>, and <strong>Potassium (K)</strong>. Knowing what each does is essential for optimal crop feeding:</p>
+          <ul>
+            <li><strong>Nitrogen (N) - Leaf and Shoot Growth:</strong> Nitrogen is the primary component of chlorophyll. It stimulates lush, dark green foliage. Stunted, yellowing leaves are a sure sign of nitrogen deficiency.</li>
+            <li><strong>Phosphorus (P) - Roots and Flowers:</strong> Phosphorus triggers rapid root establishment and energy transfer within cells. It is crucial during transplanting and blooming stages. A phosphorus deficiency leads to purplish leaves and poor fruit set.</li>
+            <li><strong>Potassium (K) - Cell Strength & Water regulation:</strong> Potassium regulates stomata opening and strengthens cell walls, helping the plant resist disease, wind, and drought. Deficiency leaves plants looking scorched at the leaf edges.</li>
+          </ul>
+
+          <div class="pro-tip">
+            <strong>Pro-Tip: Balanced Composting</strong>
+            Aim for a carbon-to-nitrogen ratio of 30:1 in your compost pile. Use 2 parts brown materials (dry leaves, straw, twigs) to 1 part green materials (fresh grass clippings, kitchen scraps, green manure) to create the perfect soil inoculant.
+          </div>
+
+          <h3>Brewing DIY Compost Tea</h3>
+          <p>Compost tea is a liquid extract brewed from high-quality compost. It delivers billions of beneficial bacteria, fungi, and protozoa directly to leaves and soil to crowd out pathogenetic fungi like blight and mildew:</p>
+          <ol style="margin-left: 1.5rem; margin-bottom: 1.2rem; line-height: 1.7;">
+            <li>Fill a 20-liter bucket with clean, dechlorinated water (let tap water sit for 24 hours).</li>
+            <li>Place 1 kg of finished, organic compost into a porous mesh bag.</li>
+            <li>Add 2 tablespoons of unsulfured blackstrap molasses (to feed beneficial bacteria).</li>
+            <li>Place an aquarium bubbler/aerator at the bottom of the bucket to keep it highly oxygenated. Aeration is critical to prevent anaerobic pathogens.</li>
+            <li>Let the tea bubble for 24 to 36 hours. Spray directly onto soil and leaf surfaces in the morning.</li>
+          </ol>
+
+          <h3>Budget Soil Testing Hacks</h3>
+          <p>Before spending money on chemical laboratory tests, you can perform two simple DIY soil tests:</p>
+          <ul>
+            <li><strong>The Jar Test (Soil Texture):</strong> Fill a clean glass jar 1/3 full of soil, fill the rest with water, add a drop of liquid soap, shake for 3 minutes. Let it settle. Sand settles in 1 minute, silt in 2 hours, and clay in 24-48 hours. Measuring the thickness of these layers tells you if you have sandy, clay, or ideal loamy soil.</li>
+            <li><strong>The DIY pH Test:</strong> Take a small soil sample. Pour vinegar over it. If it fizzes, your soil is alkaline (calcareous). Take another sample, mix with water to make slurry, and add baking soda. If it bubbles, your soil is acidic. If neither reacts, your soil is neutral (near the ideal 6.5 pH).</li>
+          </ul>
+        `,
+        quiz: [
+          {
+            question: "Which nutrient is primarily responsible for robust root development and flower blooms?",
+            options: ["Nitrogen (N)", "Phosphorus (P)", "Potassium (K)"],
+            correctIndex: 1,
+            explanation: "Phosphorus (P) is critical for root establishment, cellular energy transfer, and flower/fruit set."
+          },
+          {
+            question: "What does a fizzing reaction with vinegar tell you about your soil sample?",
+            options: ["The soil is highly acidic", "The soil is alkaline / calcareous", "The soil is completely neutral"],
+            correctIndex: 1,
+            explanation: "The acetic acid in vinegar reacts with calcium carbonate (lime) present in alkaline soils, creating bubbles of carbon dioxide."
+          },
+          {
+            question: "What is the main purpose of continuously aerating compost tea during the brewing process?",
+            options: ["To prevent beneficial microbes from settling at the bottom", "To multiply beneficial aerobic microbes while preventing anaerobic pathogens", "To dissolve nitrogen gas into the liquid"],
+            correctIndex: 1,
+            explanation: "Aerobic (oxygen-requiring) microbes are highly beneficial for plant health. Bubbling keeps oxygen levels high, preventing toxic anaerobic organisms from taking over."
+          }
+        ]
+      },
+      2: {
+        category: "Water Management",
+        title: "Precision Irrigation & Smart Water Conservation",
+        readTime: "5 min read",
+        difficulty: "Intermediate",
+        chatTopic: "Water Conservation",
+        body: `
+          <p>Water scarcity and drought are major challenges in modern agriculture. Smart water conservation ensures crop yields are maximized using up to 70% less water, while simultaneously keeping foliage dry to reduce leaf rot and fungal diseases.</p>
+
+          <h3>Drip Irrigation: Direct Root Watering</h3>
+          <p>Overhead sprinklers waste up to 50% of water through evaporation, wind drift, and runoff. Drip systems deliver water drop-by-drop directly to the root zone at low pressure. Benefits include:</p>
+          <ul>
+            <li><strong>Dry Canopy:</strong> Keeping leaves dry eliminates the damp conditions needed for spores of early blight, late blight, and downy mildew to germinate.</li>
+            <li><strong>Reduced Weeds:</strong> Water is target-delivered only to the crop root, leaving the inter-row soil dry and discouraging weed growth.</li>
+            <li><strong>Constant Moisture:</strong> Prevents soil moisture fluctuations, which cause physiological diseases like blossom end rot in tomatoes and split skin in fruits.</li>
+          </ul>
+
+          <div class="wisdom-box">
+            <strong>Farmers' Wisdom: The 'Squeeze Test'</strong>
+            Dig down 6 inches (15 cm) into your crop bed and squeeze a handful of soil. If it crumbles instantly without holding a ball, it is dry. If it leaks water, it is over-saturated. If it forms a clean ball that holds shape but crumbles easily under light thumb pressure, it is at perfect field capacity.
+          </div>
+
+          <h3>Organic Mulching Secrets</h3>
+          <p>Mulch acts as a protective barrier on top of the soil, acting as insulation:</p>
+          <ul>
+            <li><strong>Moisture Retention:</strong> A 3-inch (7.5 cm) layer of organic straw or wood mulch reduces soil water evaporation by up to 60-70%, lowering watering frequency.</li>
+            <li><strong>Temperature Moderation:</strong> Mulch keeps roots cool in scorching hot summers and warm in cool winters, preventing shock.</li>
+            <li><strong>Organic Enrichment:</strong> As straw, grass clippings, or leaves decompose, they feed earthworms and beneficial soil microbes.</li>
+            <li><strong>Disease Barrier:</strong> Mulch prevents fungal spores present in the soil from splashing up onto the lower crop leaves during rains.</li>
+          </ul>
+
+          <h3>Rainwater Harvesting Hacks</h3>
+          <p>For budget-friendly irrigation, capture rain runoff from roofs. 1 inch of rain on a 1,000 sq ft roof yields over 2,200 liters of pure, chlorine-free water. Use a simple gravity-fed system connected to a raised storage barrel to run your drip lines without needing expensive water pumps.</p>
+        `,
+        quiz: [
+          {
+            question: "How does organic mulching primarily help reduce foliar plant diseases?",
+            options: ["By poisoning invasive soil fungi", "By preventing soil-borne spores from splashing onto lower leaves during watering", "By heating the soil to kill bugs"],
+            correctIndex: 1,
+            explanation: "Many fungal diseases (like Septoria leaf spot and Early Blight) lie dormant in soil. Rain drops splash soil onto lower leaves. Mulch acts as a physical shield, stopping this splash cycle."
+          },
+          {
+            question: "When performing the soil 'squeeze test', what indicates the soil is at optimal moisture (field capacity)?",
+            options: ["It forms a ball that holds shape but crumbles easily under light pressure without dripping water", "It drips water when squeezed", "It falls apart immediately as dry dust"],
+            correctIndex: 0,
+            explanation: "Optimal soil moisture is when the soil holds shape as a ball under pressure, indicating hydration, but does not release liquid water, indicating air spaces remain in the soil."
+          },
+          {
+            question: "What is a key benefit of drip irrigation over overhead sprinkler systems?",
+            options: ["It cleans dust and debris off the leaf surfaces", "It keeps the leaf canopy dry, preventing fungal infections", "It runs on higher water pressure and water volumes"],
+            correctIndex: 1,
+            explanation: "Drip systems deliver water to soil level, keeping leaves dry. Wet leaves are the primary trigger for most bacterial and fungal leaf infections."
+          }
+        ]
+      },
+      3: {
+        category: "Pest & Health",
+        title: "Organic Integrated Pest Management (IPM)",
+        readTime: "7 min read",
+        difficulty: "Intermediate",
+        chatTopic: "Integrated Pest Management",
+        body: `
+          <p>Chemical pesticides kill both pests and beneficial predators (like ladybugs, lacewings, and spiders). This creates chemical dependency and causes severe secondary outbreaks. Organic Integrated Pest Management (IPM) focuses on maintaining ecological balance to manage pests sustainably.</p>
+
+          <h3>Principles of Organic IPM</h3>
+          <p>The goals of organic IPM are not to eradicate all bugs, but to keep pest populations below a level where they cause economic crop damage:</p>
+          <ol style="margin-left: 1.5rem; margin-bottom: 1.2rem; line-height: 1.7;">
+            <li><strong>Cultural Control:</strong> Use crop rotations, companion planting, and disease-resistant crop varieties.</li>
+            <li><strong>Physical/Mechanical Control:</strong> Use sticky traps, crop row covers, and manual removal of large insect larvae (like hornworms).</li>
+            <li><strong>Biological Control:</strong> Introduce or attract natural predator insects (e.g. planting dill and fennel to attract predatory wasps that hunt caterpillars).</li>
+            <li><strong>Organic Chemical Control:</strong> Use biodegradable botanical oils and soaps as a last resort.</li>
+          </ol>
+
+          <div class="pro-tip">
+            <strong>Pro-Tip: Companion Planting Partners</strong>
+            - <strong>Marigolds:</strong> Exude alpha-terthienyl from roots, repelling microscopic root-knot nematodes. Plant them everywhere.<br>
+            - <strong>Nasturtiums:</strong> Act as a trap crop, attracting aphids away from your main vegetable crops.<br>
+            - <strong>Basil:</strong> The strong scent confuses hornworms, thrips, and beetles, preventing them from finding host tomato leaves.
+          </div>
+
+          <h3>DIY Neem and Garlic Oil Spray Recipe</h3>
+          <p>This homemade spray acts as a powerful, non-toxic, broad-spectrum insecticide and fungicide. The neem oil disrupts the growth cycle of pests, while garlic acts as a strong repellent.</p>
+          <ul style="margin-left: 1.5rem; margin-bottom: 1.2rem;">
+            <li><strong>Ingredients:</strong> 2 heads of garlic, 1 tablespoon of high-quality cold-pressed pure neem oil, 1 teaspoon of biodegradable liquid dish soap (emulsifier), and 1 liter of warm water.</li>
+            <li><strong>Preparation:</strong> Blend the garlic heads with a cup of warm water and strain out all pulp. Mix the liquid garlic extract, neem oil, and dish soap in a spray bottle. Fill with the rest of the warm water and shake well.</li>
+            <li><strong>Application:</strong> Spray thoroughly on both tops and undersides of leaves in the late afternoon. Avoid spraying in direct midday sun to prevent leaf sunburn.</li>
+          </ul>
+
+          <h3>Smart Crop Rotations</h3>
+          <p>Never plant crops of the same family in the same soil two years in a row. For example, Nightshades (tomatoes, potatoes, eggplants, peppers) share the same diseases. Rotating them with Nitrogen-fixing legumes (beans, peas) enriches the soil and starves nightshade pathogens, breaking the blight cycle naturally.</p>
+        `,
+        quiz: [
+          {
+            question: "Why should tomatoes and potatoes be rotated with legume crops like beans or peas?",
+            options: ["Legumes grow faster and smother soil weeds", "Legumes fix nitrogen in the soil and break the cycle of nightshade pathogens", "Legumes grow deep roots that pull up old crop toxins"],
+            correctIndex: 1,
+            explanation: "Beans and peas house Rhizobium bacteria in their roots, converting atmospheric nitrogen into soil nutrients. Since they do not host Solanaceae diseases (like Early/Late Blight), the pathogenetic fungi in the soil starve and die off."
+          },
+          {
+            question: "Which insect is a highly beneficial predator that should be attracted to your crops?",
+            options: ["Whitefly", "Ladybug", "Thrip"],
+            correctIndex: 1,
+            explanation: "Ladybugs and their larvae are voracious predators of soft-bodied garden pests like aphids, spider mites, and scale insects."
+          },
+          {
+            question: "What is the active insect-growth-regulating chemical compound found in neem oil?",
+            options: ["Nicotine", "Azadirachtin", "Capsaicin"],
+            correctIndex: 1,
+            explanation: "Azadirachtin is the primary active ingredient in organic neem oil. It mimics insect hormones, preventing larvae from molting, feeding, and reproducing."
+          }
+        ]
+      },
+      4: {
+        category: "Modern Farming",
+        title: "Hydroponics & Indoor Vertical Farming",
+        readTime: "8 min read",
+        difficulty: "Advanced",
+        chatTopic: "Hydroponics",
+        body: `
+          <p>Hydroponics is the science of growing plants in water-based, nutrient-rich solutions instead of soil. By delivering nutrients directly to bare roots, hydroponic crops grow 30-50% faster, yield more, and conserve up to 90% more water compared to traditional soil farming.</p>
+
+          <h3>Standard Hydroponic Systems</h3>
+          <ul>
+            <li><strong>Deep Water Culture (DWC):</strong> Plants are suspended in net pots on a floating platform. Roots hang directly into a reservoir of nutrient solution. An air pump with airstones is continuously run to oxygenate the solution, preventing root rot.</li>
+            <li><strong>Nutrient Film Technique (NFT):</strong> A constant, very shallow stream of nutrient solution recirculates down sloped gullies over bare roots. The upper part of the root system stays damp and exposed to fresh air, ensuring high oxygen absorption.</li>
+            <li><strong>Vertical Grow Towers:</strong> Water is pumped to the top of vertical pipes and cascades down over roots. This maximizes output in compact indoor, greenhouse, or urban farm layouts.</li>
+          </ul>
+
+          <div class="pro-tip">
+            <strong>Pro-Tip: Preventing Algae Outbreaks</strong>
+            Algae competes for plant nutrients and suffocates root systems. Because algae needs light to grow, use completely opaque reservoirs (black plastic wrapped in reflective foil) and cover all grow media to block sunlight from reaching the nutrient solution.
+          </div>
+
+          <h3>Essential pH & EC Management</h3>
+          <p>In soil, minerals buffer pH. In hydroponics, farmers must monitor water chemistry daily:</p>
+          <ul>
+            <li><strong>pH Range:</strong> Most vegetables prefer a slightly acidic pH between <strong>5.5 and 6.5</strong>. If pH rises above 7.0 or drops below 5.0, chemical lockout occurs, and root cells become physically unable to absorb crucial micronutrients like iron, calcium, and phosphorus.</li>
+            <li><strong>Electrical Conductivity (EC):</strong> EC measures the salt concentration in your water, indicating nutrient strength. Leafy greens (lettuce) require low EC (1.0–1.4), while fruiting crops (tomatoes) require highly concentrated solutions (2.0–2.8).</li>
+          </ul>
+        `,
+        quiz: [
+          {
+            question: "In hydroponic setups, what occurs if the nutrient solution's pH rises above 7.0?",
+            options: ["Foliage growth accelerates", "Iron, calcium, and phosphorus lock out and become unavailable to roots", "The fertilizer salts evaporate"],
+            correctIndex: 1,
+            explanation: "When pH goes outside the optimal range (5.5 - 6.5), the chemical forms of key minerals change, causing them to precipitate out of solution and become unabsorbable, causing rapid deficiency."
+          },
+          {
+            question: "Why must water in a Deep Water Culture (DWC) system be continuously aerated with an air pump?",
+            options: ["To prevent water from heating up in the sun", "To prevent root suffocation and root rot by providing dissolved oxygen", "To keep the liquid fertilizer dissolved"],
+            correctIndex: 1,
+            explanation: "Plant roots respire and need oxygen to live. If suspended in non-aerated water, roots suffer cellular death (drown), allowing pathogens like Pythium (root rot) to destroy the crop."
+          },
+          {
+            question: "What is a primary advantage of the Nutrient Film Technique (NFT)?",
+            options: ["It requires absolutely no electricity to function", "The continuous thin stream of nutrient solution gives roots maximum exposure to both moisture and air", "It is the best method for growing tall crops like trees and corn"],
+            correctIndex: 1,
+            explanation: "NFT recirculates a thin film of water. Because the film is shallow, the top part of the root system remains exposed to free air (oxygen), while the bottom absorbs nutrient-water."
+          }
+        ]
+      }
+    };
+
+    // Keep track of user progress/score
+    let activeNotebookId = null;
+    let quizProgress = {}; // format: { notebookId: [null, null, null] } tracking chosen options
+
+    function selectNotebook(id) {
+      activeNotebookId = id;
+      const nb = NOTEBOOKS[id];
+
+      // Mark card active in UI
+      document.querySelectorAll('.notebook-card').forEach(c => c.classList.remove('active'));
+      document.getElementById(`card-${id}`).classList.add('active');
+
+      // Show reading panel
+      document.getElementById('welcomeView').style.display = 'none';
+      const articleView = document.getElementById('articleView');
+      articleView.style.display = 'flex';
+
+      // Inject content
+      document.getElementById('artCategory').textContent = nb.category;
+      document.getElementById('artTitle').textContent = nb.title;
+      document.getElementById('artReadTime').textContent = nb.readTime;
+      document.getElementById('artDiff').textContent = nb.difficulty;
+      document.getElementById('artBody').innerHTML = nb.body;
+
+      // Setup Chat Link
+      const chatUrl = `{% url 'chat' %}?topic=${encodeURIComponent(nb.chatTopic)}`;
+      document.getElementById('chatLink').href = chatUrl;
+
+      // Setup Quiz
+      setupQuiz(id, nb.quiz);
+
+      // On mobile: toggle panel visibility
+      if (window.innerWidth <= 900) {
+        document.getElementById('sidebarPanel').classList.add('hidden');
+        document.getElementById('readerPanel').classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function setupQuiz(notebookId, quizData) {
+      const wrapper = document.getElementById('quizQuestionsWrapper');
+      wrapper.innerHTML = '';
+
+      // Initialize progress entry if empty
+      if (!quizProgress[notebookId]) {
+        quizProgress[notebookId] = Array(quizData.length).fill(null);
+      }
+
+      // Hide completion card by default
+      const compCard = document.getElementById('quizCompletionCard');
+      compCard.style.display = 'none';
+
+      quizData.forEach((q, qIndex) => {
+        const qContainer = document.createElement('div');
+        qContainer.className = 'question-container';
+        
+        const qText = document.createElement('div');
+        qText.className = 'question-text';
+        qText.innerHTML = `<span class="question-num">Q${qIndex + 1}.</span> <span>${q.question}</span>`;
+        qContainer.appendChild(qText);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        // Check if question was already answered correctly in this session
+        const previousAnswer = quizProgress[notebookId][qIndex];
+        const isAlreadyCorrect = previousAnswer !== null && previousAnswer === q.correctIndex;
+
+        q.options.forEach((opt, optIndex) => {
+          const btn = document.createElement('button');
+          btn.className = 'option-btn';
+          btn.textContent = opt;
+          btn.id = `opt-${notebookId}-${qIndex}-${optIndex}`;
+          
+          // Re-hydrate state if previously answered
+          if (previousAnswer !== null) {
+            btn.disabled = true;
+            if (optIndex === q.correctIndex) {
+              btn.classList.add('correct');
+            } else if (optIndex === previousAnswer) {
+              btn.classList.add('incorrect');
+            }
+          } else {
+            btn.onclick = () => selectOption(notebookId, qIndex, optIndex, q.correctIndex);
+          }
+
+          optionsGrid.appendChild(btn);
+        });
+
+        qContainer.appendChild(optionsGrid);
+
+        const explanation = document.createElement('div');
+        explanation.className = 'explanation';
+        explanation.id = `exp-${notebookId}-${qIndex}`;
+        explanation.innerHTML = `💡 <strong>Explanation:</strong> ${q.explanation}`;
+        
+        // Show explanation if already answered
+        if (previousAnswer !== null) {
+          explanation.style.display = 'block';
+        }
+
+        qContainer.appendChild(explanation);
+        wrapper.appendChild(qContainer);
+      });
+
+      checkQuizCompletion(notebookId);
+    }
+
+    function selectOption(notebookId, qIndex, optIndex, correctIndex) {
+      // Record answer
+      quizProgress[notebookId][qIndex] = optIndex;
+      
+      const buttons = document.querySelectorAll(`[id^="opt-${notebookId}-${qIndex}-"]`);
+      buttons.forEach(btn => btn.disabled = true);
+
+      const chosenBtn = document.getElementById(`opt-${notebookId}-${qIndex}-${optIndex}`);
+      const correctBtn = document.getElementById(`opt-${notebookId}-${qIndex}-${correctIndex}`);
+      
+      if (optIndex === correctIndex) {
+        chosenBtn.classList.add('correct');
+      } else {
+        chosenBtn.classList.add('incorrect');
+        correctBtn.classList.add('correct');
+      }
+
+      // Show explanation
+      const expEl = document.getElementById(`exp-${notebookId}-${qIndex}`);
+      expEl.style.display = 'block';
+
+      // Check overall notebook quiz status
+      checkQuizCompletion(notebookId);
+    }
+
+    function checkQuizCompletion(notebookId) {
+      const answers = quizProgress[notebookId];
+      if (!answers) return;
+
+      const quizData = NOTEBOOKS[notebookId].quiz;
+      const allAnswered = answers.every(ans => ans !== null);
+      const allCorrect = answers.every((ans, idx) => ans === quizData[idx].correctIndex);
+
+      const cardStatus = document.getElementById(`status-${notebookId}`);
+
+      if (allCorrect) {
+        // Mark as completed in sidebar status
+        cardStatus.textContent = '✅';
+        
+        // Show completion card
+        const compCard = document.getElementById('quizCompletionCard');
+        const compText = document.getElementById('quizCompletionText');
+        compText.innerHTML = `Excellent work! You scored 100% (3/3) on this module. You have unlocked the <strong>${NOTEBOOKS[notebookId].category} Completion Badge</strong> 🏆`;
+        compCard.style.display = 'block';
+      } else if (allAnswered) {
+        // Answered all but not all correct
+        cardStatus.textContent = '🔄';
+        
+        // Show retry options: let them click a button inside the card or allow resetting the quiz
+        const compCard = document.getElementById('quizCompletionCard');
+        const compText = document.getElementById('quizCompletionText');
+        compCard.style.background = 'linear-gradient(135deg, #ffebee, #ffcdd2)';
+        compCard.style.borderColor = '#c62828';
+        compCard.querySelector('.badge-icon').textContent = '⚠️';
+        compCard.querySelector('h4').textContent = 'Review Recommended';
+        compCard.querySelector('h4').style.color = '#b71c1c';
+        compText.innerHTML = `You answered all questions, but made mistakes. Read the explanations above, then click below to try again.<br><br>
+          <button onclick="resetQuiz(${notebookId})" style="background: #c62828; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: background 0.2s;">
+            Reset & Retry Quiz
+          </button>`;
+        compCard.style.display = 'block';
+      } else if (answers.some(ans => ans !== null)) {
+        // In progress
+        cardStatus.textContent = '✍️';
+      } else {
+        // Not started
+        cardStatus.textContent = '📖';
+      }
+    }
+
+    function resetQuiz(notebookId) {
+      quizProgress[notebookId] = Array(NOTEBOOKS[notebookId].quiz.length).fill(null);
+      const cardStatus = document.getElementById(`status-${notebookId}`);
+      cardStatus.textContent = '📖';
+      setupQuiz(notebookId, NOTEBOOKS[notebookId].quiz);
+    }
+
+    function goBackToList() {
+      document.getElementById('sidebarPanel').classList.remove('hidden');
+      document.getElementById('readerPanel').classList.remove('active');
+    }
+
+    function handleResize() {
+      if (window.innerWidth > 900) {
+        document.getElementById('sidebarPanel').classList.remove('hidden');
+        if (activeNotebookId === null) {
+          document.getElementById('welcomeView').style.display = 'flex';
+          document.getElementById('articleView').style.display = 'none';
+        }
+      }
+    }
+    
+    window.addEventListener('resize', handleResize);
+  </script>
+</body>
+</html>
